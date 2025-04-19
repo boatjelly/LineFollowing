@@ -1,5 +1,6 @@
 /* Line Following v0.1
-   By: Sasha Dauz, Robert J. Guziec, Jacob JM Horstman
+ *  Code to teach Jeremy to follow a line
+   By: Jacob JM Horstman
    Written: April 19, 2025
    Edit:
    I/O Pins:
@@ -38,8 +39,8 @@ void setup() {
                  // -                         bits 7543
                  // Timer/counter 1 comp B    bits 210
                  
-  ADMUX = 0x40;  // [0100 0000] -> A0 0x40
-                 // [0100 0001] -> A1 0x41
+  ADMUX = 0x41;  // [0100 0000] -> A0 0x40
+                 // [0100 0001] -> A1 0x41              <-- Currently set to A1
                  // [0100 0010] -> A2 0x42
                  // Reference: AVCC
                  // ADLAR Full Precision (10-Bit) Mode
@@ -61,7 +62,7 @@ void setup() {
                    // Force compare disabled bits 76
                    // -                      bits 543210
 
-   TIMSK1 = 0x40;  // [0000 0100]
+  TIMSK1 = 0x40;  // [0000 0100]
                    // -                      bit 7643
                    // I/C interrupt Disabled bit 5
                    // Comp B Enabled         bit 2       <-- Requires a do nothing interrupt?
@@ -71,4 +72,8 @@ void setup() {
 
 void loop() {
   // Do nothing?
+}
+
+ISR(TIMER1_COMPB){
+  // Do nothing interrupt?????????????????????????????????????????????????????????????????????
 }
