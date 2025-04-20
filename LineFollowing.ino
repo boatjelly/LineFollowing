@@ -1,79 +1,67 @@
-/* Line Following v0.1
- *  Code to teach Jeremy to follow a line
-   By: Jacob JM Horstman
-   Written: April 19, 2025
-   Edit:
-   I/O Pins:
-  A0: [INPUT] Left LF Sensor
-  A1: [INPUT] Center LF Sensor
-  A2: [INPUT] Right LF Sensor
-  A3:
-  A4:
-  A5:
-  D0:
-  D1:
-  D2:
-  D3:
-  D4:
-  D5:
-  D6:
-  D7:
-  D8:
-  D9:
-  D10:
-  D11:
-  D12:
-  D13:
+/*
+  Line Following
+  By: Sasha Dauz, Jacob Horstman
+  Written: April 19, 2025
+  I/O Pins
+  A0: [Input] Left Line Sensor
+  A1: [Input] Center Line Sensor
+  A2: [Input] Right Line Sensor
+  ...
+  D5: [Output] Center Line Sensor LED OC0B
+  D6: [Output] Right Line Sensor LED OC0A
+  D11: [Output] Left Line Sensor LED OC2A
+  ...
 */
+
 void setup() {
-  // Configure ADC
-  ADCSRA = 0xE7; // [1110 0111]
-                 // ADC Enabled               bit 7
-                 // ADC Start Conversion      bit 6
-                 // ADC Auto Trigger Enable   bit 5
-                 // ADC Interrupt Flag        bit 4
-                 // ADC Interrupt Disabled    bit 3
-                 // ADC Prescaler set to 128  bits 210
-                 
-  ADCSRB = 0x05; // [0000 0101]
-                 // -                         bits 7543
-                 // Timer/counter 1 comp B    bits 210
-                 
-  ADMUX = 0x41;  // [0100 0000] -> A0 0x40
-                 // [0100 0001] -> A1 0x41              <-- Currently set to A1
-                 // [0100 0010] -> A2 0x42
-                 // Reference: AVCC
-                 // ADLAR Full Precision (10-Bit) Mode
-
-  // Configure TCNT1
-  TCCR1A = 0x30;   // [0011 0000]
-                   // OC1A disconnected      bits 76
-                   // OC1B Set CompMatch     bits 54
-                   // -                      bits 32
-                   // CTC Mode               bits 10
-                   
-  TCCR1B = 0x05;   // [0000 1001]
-                   // Input capture disabled bits 76
-                   // -                      bit 5
-                   // CTC Mode               bits 43
-                   // Pre-scaler N=1         bits 210
-
-  TCCR1C = 0x00;   // [0000 0000]
-                   // Force compare disabled bits 76
-                   // -                      bits 543210
-
-  TIMSK1 = 0x40;  // [0000 0100]
-                   // -                      bit 7643
-                   // I/C interrupt Disabled bit 5
-                   // Comp B Enabled         bit 2       <-- Requires a do nothing interrupt?
-                   // Comp A Disabled        bit 1
-                   // Ovf Disabled           bit 0
+  Serial.begin(9600);
+  // Set outputs on Port D and Port B
+  DDRD = 0x60; // D6, D5
+  DDRB = 0x08; // D11
+  // Globally disable interrupts
+  cli();
+  // ADC in 8-bit mode, enable interrupts, auto trigger DISABLED
+  ADCSRA = 0xCF;
+  ADCSRB = 0x00;
+  ADMUX = 0x60;
+  // Timer/counter 0 fast PWM, N=64, OC0A and OC0B active
+  TCCR0A = 0xA3;
+  TCCR0B = 0x03;
+  // Timer/counter 2
+  TCCR2A = 0x83;
+  TCCR2B = 0x03;
+  // Re enable interrupts
+  sei();
 }
 
 void loop() {
-  // Do nothing?
+  // Nothing to see here...
 }
 
-ISR(TIMER1_COMPB){
-  // Do nothing interrupt?????????????????????????????????????????????????????????????????????
+// Global counter variable
+volatile unsigned char counter = 0;
+ISR(ADC_vect) {
+  if (ADMUX & 0x02) {
+    // A2 should control OC0A
+    OCR0A = ADCH;
+    ADMUX &= 0xF8;
+    Serial.print("Right: ");
+    Serial.println(ADCH);
+  } else if (ADMUX & 0x01) {
+    // A1 should control OC0B
+    OCR0B = ADCH;
+    ADMUX &= 0xF8;
+    ADMUX |= 0x02;
+    Serial.print("Left: ");
+    Serial.println(ADCH);
+  } else {
+    // A0 should control OC2A
+    OCR2A = ADCH;
+    ADMUX &= 0xF8; // Selectively clear last three bits
+    ADMUX |= 0x01;
+    Serial.print("Center: ");
+    Serial.println(ADCH);
+  }
+  // Start new conversion
+  ADCSRA |= 0x40;
 }
