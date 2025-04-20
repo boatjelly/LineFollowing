@@ -1,4 +1,4 @@
-How to understand Line Following
+# How to understand Line Following
 
 1. MUXDemo.ino, open this file and watch this youtube video https://www.youtube.com/watch?v=nEmeM64WUjs&t=6s
 2. Play around with the SingleSensorTestv1.ino file
