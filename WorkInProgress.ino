@@ -13,9 +13,11 @@
   D11: [OCR2A] Right Motor Reverse Speed; Connects to Pin 10 on the H-Bridge
   Using battery packs + H-bridge PCB
 
-  
-  JEREMY SOME HOW WORKS??? IDEK 
+
+  oh no Jer
 */
+
+// * * * GROSS ENCODER GLOBALS * * *
 //volatile unsigned char counterRight = 0;
 //volatile unsigned char counterLeft = 0;
 //volatile unsigned char avg = 0;
@@ -26,12 +28,14 @@
 
 // * * * * GROSS GLOBAL VARIABLES * * * *
 volatile unsigned char rightyTighty = 0;
-volatile unsigned char leftyLoosy = 0;
+volatile unsigned char leftyLoosey = 0;
 volatile unsigned char center = 0;
 
-// CONSTANTS
+// * * * SPEED CONSTANTS * * *
 const unsigned char FWD = 255;
 const unsigned char BLK = 215;
+const unsigned char SPED1 = 200;
+const unsigned char SPED2 = 20;
 
 void setup() {
   // Disable global interrupts
@@ -61,47 +65,36 @@ void setup() {
   sei();
 }
 
-void moveForward() {
-  // Configure OCRnB
-  OCR0B = ( 93L * FWD) /100;       // Left motor forward
-  OCR2B = FWD;       // Right motor forward
-}
-
 void loop() {
   while (center >= BLK){
-      moveForward();
+   OCR0B = FWD;  // LEFT WHEEL
+   OCR2A = FWD;  // RIGHT WHEEL
   }
+    // Ayo, this shit FUCKS ^^
 }
 
 ISR(ADC_vect) {
-
   // Cool local counter variable
   static unsigned char sensor = 0;
   switch (sensor) {
     case 0:
-      // A0 should control OC2A
-      OCR2A = ADCH;
+      // LEFT sensor
+      //OCR0B = ADCH;
       ADMUX &= 0xF8; // Selectively clear last three bits
       ADMUX |= 0x01;
-      Serial.print("Center: ");
-      Serial.println(ADCH);
       sensor++;
       break;
     case 1:
-      // A1 should control OC0B
-      OCR0B = ADCH;
+      // CENTER sensor
+      //OCR2A = ADCH;
+      center = ~(ADCH);
       ADMUX &= 0xF8;
       ADMUX |= 0x02;
-//      Serial.print("Left: ");
-//      Serial.println(ADCH);
       sensor++;
       break;
     case 2:
-      // A2 should control OC0A
-      rightyTighty = ADCH;
+      // RIGHT sensor
       ADMUX &= 0xF8;
-//      Serial.print("Right: ");
-//      Serial.println(ADCH);
       sensor++;
       break;
     default:
