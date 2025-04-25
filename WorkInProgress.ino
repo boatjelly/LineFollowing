@@ -1,6 +1,6 @@
 /*
   The Motors Are Working
-  By: Sasha Dauz, Jacob Horstman, Robert Guziec
+  By: Sasha Dauz, Jacob JM Horstman, Robert Guziec
   Written: April 19, 2025
   Edited: April 24, 2025
   I/O
@@ -15,16 +15,12 @@
 
 
   Proud of you Jer!
+  ... But can you count?
 */
 
 // * * * GROSS ENCODER GLOBALS * * *
-//volatile unsigned char counterRight = 0;
-//volatile unsigned char counterLeft = 0;
-//volatile unsigned char avg = 0;
-//volatile unsigned char rightA = 1;
-//volatile unsigned char rightB = 1;
-//volatile unsigned char leftA = 1;
-//volatile unsigned char leftB = 1;
+volatile unsigned int avg = 0;
+const unsigned int DISTTICK = 1887; // 2 meters / 1.06 mm/toggler = 1,886.79 toggles
 
 // * * * * GROSS GLOBAL VARIABLES * * * *
 volatile unsigned char rightyTighty = 0;
@@ -41,7 +37,6 @@ void setup() {
   // Disable global interrupts
   cli();
   // Configure serial monitor baudrate to 9600
-  //Serial.begin(9600);
   // Enable internal pull-up
   PORTC |= 0x30;  // A4, A5
   // Left Motor Setup
@@ -61,16 +56,18 @@ void setup() {
   ADCSRA = 0xCF;
   ADCSRB = 0x00;
   ADMUX = 0x60;
+  // Configure Pin Change Interrupts
+  PCICR = 0x02;   // PortC
+  PCMSK1 = 0x30;  // A4, A5
+  // Enable interal pull-up
+  PORTC |= 0x30;  // A4, A5
+  // Re-enable global interrupts
   // Re-enable global interrupts
   sei();
 }
 
 void loop() {
-//  if (center >= BLK){
-//   OCR0B = FWD;  // LEFT WHEEL
-//   OCR2A = FWD;  // RIGHT WHEEL
-//  }
-//    // Ayo, this shit FUCKS ^^
+  // Nothing to see here...
 }
 
 // BLACK >> 255
@@ -81,7 +78,7 @@ ISR(ADC_vect) {
   switch (sensor) {
     case 0:
       // LEFT sensor
-      if (ADCH < BLK)
+      if ((ADCH < BLK) && (avg < DISTTICK))
       {
         OCR0B = FWD;
       } else {
@@ -100,7 +97,7 @@ ISR(ADC_vect) {
       break;
     case 2:
       // RIGHT sensor
-      if (ADCH < BLK)
+      if ((ADCH < BLK) && (avg < DISTTICK))
       {
         OCR2A = FWD;
       } else {
@@ -115,4 +112,28 @@ ISR(ADC_vect) {
   }
   // Start new conversion
   ADCSRA |= 0x40;
+}
+
+ISR(PCINT1_vect) {
+  
+  // Cool local variables!
+  volatile unsigned int rightA = 1;
+  volatile unsigned int rightB = 1;
+  volatile unsigned int leftA = 1;
+  volatile unsigned int leftB = 1;
+  volatile unsigned int counterRight = 0;
+  volatile unsigned int counterLeft = 0;
+
+  // Calculate encoder values
+  rightB = (PINC & 0x10) >> 4;
+  leftB = (PINC & 0x20) >> 5;
+  if ((rightB != rightA) && !rightB) {
+    counterRight++;
+  }
+  if ((leftB != leftA) && !leftB) {
+    counterLeft++;
+  }
+  leftA = leftB;
+  rightA = rightB;
+  avg = (counterLeft + counterRight)/2;
 }
