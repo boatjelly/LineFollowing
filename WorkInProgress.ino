@@ -14,7 +14,7 @@
   Using battery packs + H-bridge PCB
 
 
-  oh no Jer
+  Proud of you Jer!
 */
 
 // * * * GROSS ENCODER GLOBALS * * *
@@ -41,7 +41,7 @@ void setup() {
   // Disable global interrupts
   cli();
   // Configure serial monitor baudrate to 9600
-  Serial.begin(9600);
+  //Serial.begin(9600);
   // Enable internal pull-up
   PORTC |= 0x30;  // A4, A5
   // Left Motor Setup
@@ -66,34 +66,46 @@ void setup() {
 }
 
 void loop() {
-  while (center >= BLK){
-   OCR0B = FWD;  // LEFT WHEEL
-   OCR2A = FWD;  // RIGHT WHEEL
-  }
-    // Ayo, this shit FUCKS ^^
+//  if (center >= BLK){
+//   OCR0B = FWD;  // LEFT WHEEL
+//   OCR2A = FWD;  // RIGHT WHEEL
+//  }
+//    // Ayo, this shit FUCKS ^^
 }
 
+// BLACK >> 255
+// 0 << WHITE
 ISR(ADC_vect) {
   // Cool local counter variable
   static unsigned char sensor = 0;
   switch (sensor) {
     case 0:
       // LEFT sensor
-      //OCR0B = ADCH;
+      if (ADCH < BLK)
+      {
+        OCR0B = FWD;
+      } else {
+        OCR0B =0;
+      }
       ADMUX &= 0xF8; // Selectively clear last three bits
       ADMUX |= 0x01;
       sensor++;
       break;
     case 1:
       // CENTER sensor
-      //OCR2A = ADCH;
-      center = ~(ADCH);
+      center = ADCH;
       ADMUX &= 0xF8;
       ADMUX |= 0x02;
       sensor++;
       break;
     case 2:
       // RIGHT sensor
+      if (ADCH < BLK)
+      {
+        OCR2A = FWD;
+      } else {
+        OCR2A =0;
+      }
       ADMUX &= 0xF8;
       sensor++;
       break;
