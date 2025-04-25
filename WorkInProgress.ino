@@ -12,6 +12,9 @@
   D6:  [OCR0A] Left Motor Reverse Speed; Connects to H-Bridge Pin 2
   D11: [OCR2A] Right Motor Reverse Speed; Connects to Pin 10 on the H-Bridge
   Using battery packs + H-bridge PCB
+
+  
+  JEREMY SOME HOW WORKS??? IDEK 
 */
 //volatile unsigned char counterRight = 0;
 //volatile unsigned char counterLeft = 0;
@@ -21,9 +24,14 @@
 //volatile unsigned char leftA = 1;
 //volatile unsigned char leftB = 1;
 
+// * * * * GROSS GLOBAL VARIABLES * * * *
 volatile unsigned char rightyTighty = 0;
 volatile unsigned char leftyLoosy = 0;
 volatile unsigned char center = 0;
+
+// CONSTANTS
+const unsigned char FWD = 255;
+const unsigned char BLK = 215;
 
 void setup() {
   // Disable global interrupts
@@ -55,12 +63,14 @@ void setup() {
 
 void moveForward() {
   // Configure OCRnB
-  OCR0B = 255;       // Left motor forward
-  OCR2B = 255;       // Right motor forward
+  OCR0B = ( 93L * FWD) /100;       // Left motor forward
+  OCR2B = FWD;       // Right motor forward
 }
 
 void loop() {
-  moveForward();
+  while (center >= BLK){
+      moveForward();
+  }
 }
 
 ISR(ADC_vect) {
@@ -75,27 +85,29 @@ ISR(ADC_vect) {
       ADMUX |= 0x01;
       Serial.print("Center: ");
       Serial.println(ADCH);
+      sensor++;
       break;
     case 1:
       // A1 should control OC0B
       OCR0B = ADCH;
       ADMUX &= 0xF8;
       ADMUX |= 0x02;
-      Serial.print("Left: ");
-      Serial.println(ADCH);
+//      Serial.print("Left: ");
+//      Serial.println(ADCH);
+      sensor++;
       break;
     case 2:
       // A2 should control OC0A
       rightyTighty = ADCH;
       ADMUX &= 0xF8;
-      Serial.print("Right: ");
-      Serial.println(ADCH);
+//      Serial.print("Right: ");
+//      Serial.println(ADCH);
+      sensor++;
       break;
     default:
       sensor = 0;
       break;
   }
   // Start new conversion
-  sensor++;
   ADCSRA |= 0x40;
 }
