@@ -21,6 +21,10 @@
   - Added case 3
   Jacob Changes:
   - Simplify ISR conditionals
+  Robert Changes:
+  + Added reverse values to help make sharper turns
+  - Straight aways are still an issue
+  - Power issues for motors
 
 
 */
