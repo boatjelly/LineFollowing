@@ -23,12 +23,12 @@ volatile unsigned char center = 0;
 
 // * * * CONSTANTS * * *
 const unsigned char FWD = 200;
-const unsigned char EDGE_BLK = 230; // 230 Best number >:|
+const unsigned char BLK = 230; // 230 Best number >:|
 const unsigned int HLT = 1817;
 
 void setup() {
   Serial.begin(9600);
-  
+
   cli();
   // Configure TCNTn for each motor
   TCCR0A = 0xA1; // Left Motor Setup
@@ -51,44 +51,42 @@ void setup() {
 }
 
 void loop() {
-      if (leftyLoosey < EDGE_BLK) {
-        OCR0B = LWHL;
-        OCR0A = 0;
-      } else {
-        OCR0B = 0;
-        OCR0A = TRN;
-      }
-      if (rightyTighty < EDGE_BLK) {
-        OCR2A = RWHL;
-        OCR2B = 0;
-      } else {
-        OCR2A = 0;
-        OCR2B = TRN;
-      }
-      if (( leftyLoosey <= EDGE_BLK) && (rightyTighty <= EDGE_BLK)) {
-        OCR0B = LWHL;
-        OCR2A = RWHL;
-        OCR0A = 0;
-        OCR2B = 0;
-      }
+  while ((leftyLoosey < BLK) && (avg < HLT)) {
+    OCR0B = FWD;    // Left FWD
+    OCR2A = 0;      // Right FWD
+    OCR0A = 0;      // Left BCK
+    OCR2B = 0;      // Right BCK
+  } // This^ should turn right
+  while ((rightyTighty < BLK) && (avg < HLT)) {
+    OCR0B = 0;      // Left FWD
+    OCR2A = FWD;    // Right FWD
+    OCR0A = 0;      // Left BCK
+    OCR2B = 0;      // Right BCK
+  } // This^ should turn left
+  while (( leftyLoosey < BLK) && (rightyTighty < BLK) && (center >= BLK) && (avg < HLT)) {
+    OCR0B = FWD;    // Left FWD
+    OCR2A = FWD;    // Right FWD
+    OCR0A = 0;      // Left BCK
+    OCR2B = 0;      // Right BCK
+  } // Send it
 }
 
 ISR(ADC_vect) {
   static unsigned char sensor = 0;
   switch (sensor) {
-    case 0: // Collect LEFT sensor data A0
+    case 0: // Collect LEFT sensor data A0, then change to A2
       leftyLoosey = ADCH;
       ADMUX &= 0xF8;
       ADMUX |= 0x02;
       sensor++;
       break;
-    case 1: // Collect RIGHT sensor data A2
+    case 1: // Collect RIGHT sensor data A2, then change to A1
       rightyTighty = ADCH;
       ADMUX &= 0xF8;
       ADMUX |= 0x01;
       sensor++;
       break;
-    case 2: // Collect Center sensor data A1
+    case 2: // Collect Center sensor data A1, then change to A0
       center = ADCH;
       ADMUX &= 0xF8;
       sensor = 0;
@@ -98,10 +96,10 @@ ISR(ADC_vect) {
 }
 
 ISR(PCINT1_vect) {
-  static unsigned int rightA = 1;
-  static unsigned int rightB = 1;
-  static unsigned int leftA = 1;
-  static unsigned int leftB = 1;
+  static unsigned char rightA = 1;
+  static unsigned char rightB = 1;
+  static unsigned char leftA = 1;
+  static unsigned char leftB = 1;
   static unsigned int counterRight = 0;
   static unsigned int counterLeft = 0;
   rightB = (PINC & 0x10) >> 4;
@@ -115,4 +113,8 @@ ISR(PCINT1_vect) {
   leftA = leftB;
   rightA = rightB;
   avg = (counterLeft + counterRight) / 2;
+
+  if (avg == 65535) {
+    avg = 0;
+  } // Prevents int overflow
 }
