@@ -2,7 +2,7 @@
   K.I.S.S.
   By: Sasha Dauz, Jacob Horstman, Robert Guziec
   Written: April 29, 2025
-  Edited:
+  Edited: Arpil 30, 2025
   I/O
   A4:  [INPUT] Right Wheel Encoder
   A5:  [INPUT] Left Wheel Encoder
@@ -44,13 +44,13 @@ void setup() {
 }
 
 // * * * CONSTANTS * * *
-const unsigned char FWD = 215;
-const unsigned char RVS = 38;
-const unsigned char BLK = 200;
-const unsigned int HLT = 1817;
+const unsigned char FWD = 230;
+const unsigned char RVS = 60;
+const unsigned char BLK = 215;
+const unsigned int HLT = 2000;
 
 void loop() {
-  //  if ( avg <= HLT) {
+    if ( avg <= HLT) {
   while (( leftyLoosey < BLK) && (rightyTighty < BLK) && (center >= BLK)) {
     OCR0B = FWD;    // Left FWD
     OCR2A = FWD;    // Right FWD
@@ -70,13 +70,13 @@ void loop() {
     OCR2B = 0;      // Right BCK
   } // This^ should turn left
 }
-//else {
-//  OCR0B = 0;      // Left FWD
-//  OCR2A = 0;      // Right FWD
-//  OCR0A = 0;      // Left BCK
-//  OCR2B = 0;      // Right BCK
-//}
-////}
+else {
+  OCR0B = 0;      // Left FWD
+  OCR2A = 0;      // Right FWD
+  OCR0A = 0;      // Left BCK
+  OCR2B = 0;      // Right BCK
+}
+}
 
 ISR(ADC_vect) {
   static unsigned char sensor = 0;
