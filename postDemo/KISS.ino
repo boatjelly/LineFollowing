@@ -21,14 +21,7 @@ volatile unsigned char rightyTighty = 0;
 volatile unsigned char leftyLoosey = 0;
 volatile unsigned char center = 0;
 
-// * * * CONSTANTS * * *
-const unsigned char FWD = 200;
-const unsigned char BLK = 230; // 230 Best number >:|
-const unsigned int HLT = 1817;
-
 void setup() {
-  Serial.begin(9600);
-
   cli();
   // Configure TCNTn for each motor
   TCCR0A = 0xA1; // Left Motor Setup
@@ -50,26 +43,40 @@ void setup() {
   sei();
 }
 
+// * * * CONSTANTS * * *
+const unsigned char FWD = 215;
+const unsigned char RVS = 38;
+const unsigned char BLK = 200;
+const unsigned int HLT = 1817;
+
 void loop() {
-  while ((leftyLoosey < BLK) && (avg < HLT)) {
-    OCR0B = FWD;    // Left FWD
-    OCR2A = 0;      // Right FWD
-    OCR0A = 0;      // Left BCK
-    OCR2B = 0;      // Right BCK
-  } // This^ should turn right
-  while ((rightyTighty < BLK) && (avg < HLT)) {
-    OCR0B = 0;      // Left FWD
-    OCR2A = FWD;    // Right FWD
-    OCR0A = 0;      // Left BCK
-    OCR2B = 0;      // Right BCK
-  } // This^ should turn left
-  while (( leftyLoosey < BLK) && (rightyTighty < BLK) && (center >= BLK) && (avg < HLT)) {
+  //  if ( avg <= HLT) {
+  while (( leftyLoosey < BLK) && (rightyTighty < BLK) && (center >= BLK)) {
     OCR0B = FWD;    // Left FWD
     OCR2A = FWD;    // Right FWD
     OCR0A = 0;      // Left BCK
     OCR2B = 0;      // Right BCK
   } // Send it
+  while (leftyLoosey < BLK) {
+    OCR0B = FWD;    // Left FWD
+    OCR2A = 0;      // Right FWD
+    OCR0A = 0;      // Left BCK
+    OCR2B = RVS;      // Right BCK
+  } // This^ should turn right
+  while (rightyTighty < BLK) {
+    OCR0B = 0;      // Left FWD
+    OCR2A = FWD;    // Right FWD
+    OCR0A = RVS;      // Left BCK
+    OCR2B = 0;      // Right BCK
+  } // This^ should turn left
 }
+//else {
+//  OCR0B = 0;      // Left FWD
+//  OCR2A = 0;      // Right FWD
+//  OCR0A = 0;      // Left BCK
+//  OCR2B = 0;      // Right BCK
+//}
+////}
 
 ISR(ADC_vect) {
   static unsigned char sensor = 0;
