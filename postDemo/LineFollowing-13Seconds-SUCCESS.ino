@@ -65,8 +65,7 @@ void setup() {
 }
 
 void loop() {
-  Serial.print("Avg: ");
-  Serial.println(avg);
+  // Nothing to see here...
 }
 
 // BLACK >> 255
