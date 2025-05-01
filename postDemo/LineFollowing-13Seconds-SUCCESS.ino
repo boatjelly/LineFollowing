@@ -18,13 +18,7 @@
 */
 
 // * * * GROSS ENCODER GLOBALS * * *
-//volatile unsigned char counterRight = 0;
-//volatile unsigned char counterLeft = 0;
 volatile unsigned int avg = 0;
-//volatile unsigned char rightA = 1;
-//volatile unsigned char rightB = 1;
-//volatile unsigned char leftA = 1;
-//volatile unsigned char leftB = 1;
 
 // * * * * GROSS GLOBAL VARIABLES * * * *
 volatile unsigned char rightyTighty = 0;
