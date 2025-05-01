@@ -50,32 +50,32 @@ const unsigned char BLK = 215;
 const unsigned int HLT = 2000;
 
 void loop() {
-    if ( avg <= HLT) {
-  while (( leftyLoosey < BLK) && (rightyTighty < BLK) && (center >= BLK)) {
-    OCR0B = FWD;    // Left FWD
-    OCR2A = FWD;    // Right FWD
-    OCR0A = 0;      // Left BCK
-    OCR2B = 0;      // Right BCK
-  } // Send it
-  while (leftyLoosey < BLK) {
-    OCR0B = FWD;    // Left FWD
+  if ( avg <= HLT) {
+    while (( leftyLoosey < BLK) && (rightyTighty < BLK) && (center >= BLK)) {
+      OCR0B = FWD;    // Left FWD
+      OCR2A = FWD;    // Right FWD
+      OCR0A = 0;      // Left BCK
+      OCR2B = 0;      // Right BCK
+    } // Send it
+    while (leftyLoosey < BLK) {
+      OCR0B = FWD;    // Left FWD
+      OCR2A = 0;      // Right FWD
+      OCR0A = 0;      // Left BCK
+      OCR2B = RVS;      // Right BCK
+    } // This^ should turn right
+    while (rightyTighty < BLK) {
+      OCR0B = 0;      // Left FWD
+      OCR2A = FWD;    // Right FWD
+      OCR0A = RVS;      // Left BCK
+      OCR2B = 0;      // Right BCK
+    } // This^ should turn left
+  }
+  else {
+    OCR0B = 0;      // Left FWD
     OCR2A = 0;      // Right FWD
     OCR0A = 0;      // Left BCK
-    OCR2B = RVS;      // Right BCK
-  } // This^ should turn right
-  while (rightyTighty < BLK) {
-    OCR0B = 0;      // Left FWD
-    OCR2A = FWD;    // Right FWD
-    OCR0A = RVS;      // Left BCK
     OCR2B = 0;      // Right BCK
-  } // This^ should turn left
-}
-else {
-  OCR0B = 0;      // Left FWD
-  OCR2A = 0;      // Right FWD
-  OCR0A = 0;      // Left BCK
-  OCR2B = 0;      // Right BCK
-}
+  }
 }
 
 ISR(ADC_vect) {
