@@ -2,15 +2,18 @@
   The Motors Are Working
   By: Sasha Dauz, Jacob Horstman, Robert Guziec
   Written: April 19, 2025
-  Edited: April 24, 2025
-  I/O
+  Edited: May 1, 2025
+  I/O:
+  A0:  [INPUT] Left Line Sensor
+  A1:  [INPUT] Center Line Sensor
+  A2:  [INPUT] Right Line Sensor
   A4:  [INPUT] Right Wheel Encoder
   A5:  [INPUT] Left Wheel Encoder
   ...
-  D3:  [OCR2B] Right Motor Forward; Connects to Pin 15 on the H-Bridge
+  D3:  [OCR2B] Right Motor Reverse; Connects to Pin 15 on the H-Bridge
   D5:  [OCR0B] Left Motor Forward Speed; Connects to H-Bridge Pin 7
   D6:  [OCR0A] Left Motor Reverse Speed; Connects to H-Bridge Pin 2
-  D11: [OCR2A] Right Motor Reverse Speed; Connects to Pin 10 on the H-Bridge
+  D11: [OCR2A] Right Motor Forward Speed; Connects to Pin 10 on the H-Bridge
   Using battery packs + H-bridge PCB
 
 
@@ -58,8 +61,6 @@ void setup() {
   // Configure Pin Change Interrupts
   PCICR = 0x02;   // PortC
   PCMSK1 = 0x30;  // A4, A5
-  // Enable internal pull-up
-  PORTC |= 0x30;  // A4, A5
   // Re-enable global interrupts
   sei();
 }
@@ -77,8 +78,7 @@ ISR(ADC_vect) {
     case 0:
       // LEFT sensor
       leftyLoosey = ADCH;
-      if (ADCH < BLK)
-      {
+      if (ADCH < BLK) {
         OCR0B = FWD;
       } else {
         OCR0B = 0;
