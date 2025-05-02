@@ -90,8 +90,7 @@ ISR(ADC_vect) {
       break;
     case 2: // RIGHT sensor
       rightyTighty = ADCH;
-      if (ADCH < BLK)
-      {
+      if (ADCH < BLK) {
         OCR2A = FWD;
       } else {
         OCR2A = 0;
