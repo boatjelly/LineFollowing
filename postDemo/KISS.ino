@@ -44,33 +44,52 @@ void setup() {
 }
 
 // * * * CONSTANTS * * *
-const unsigned char FWD = 230;
-const unsigned char RVS = 60;
-const unsigned char BLK = 215;
-const unsigned int HLT = 2000;
+const unsigned char FWD = 255; //MAX 170
+const unsigned char RVS = 30; // MAX 170
+const unsigned char BLK = 200;
+const unsigned int HLT = 2050;
 
 void loop() {
-  if ( avg <= HLT) {
-    while (( leftyLoosey < BLK) && (rightyTighty < BLK) && (center >= BLK)) {
-      OCR0B = FWD;    // Left FWD
-      OCR2A = FWD;    // Right FWD
+  if ( avg <= (HLT / 2)) { // First half should be less than or equal to 4 seconds
+    if (( leftyLoosey < BLK) && (rightyTighty < BLK) && (center >= BLK)) {
+      OCR0B = (FWD);    // Left FWD
+      OCR2A = (FWD);    // Right FWD
       OCR0A = 0;      // Left BCK
       OCR2B = 0;      // Right BCK
     } // Send it
-    while (leftyLoosey < BLK) {
-      OCR0B = FWD;    // Left FWD
+    if (leftyLoosey < BLK) {
+      OCR0B = (FWD);    // Left FWD
       OCR2A = 0;      // Right FWD
       OCR0A = 0;      // Left BCK
-      OCR2B = RVS;      // Right BCK
+      OCR2B = (RVS);      // Right BCK
     } // This^ should turn right
-    while (rightyTighty < BLK) {
+    if (rightyTighty < BLK) {
       OCR0B = 0;      // Left FWD
-      OCR2A = FWD;    // Right FWD
-      OCR0A = RVS;      // Left BCK
+      OCR2A = (FWD);    // Right FWD
+      OCR0A = (RVS);      // Left BCK
       OCR2B = 0;      // Right BCK
     } // This^ should turn left
   }
-  else {
+  else if ((avg > (HLT / 2)) && (avg < HLT)) {  // Second half should be greater than or equal to 6.5 seconds
+    if (( leftyLoosey < BLK) && (rightyTighty < BLK) && (center >= BLK)) {
+      OCR0B = (2 * FWD) / 3;    // Left FWD
+      OCR2A = (2 * FWD) / 3;    // Right FWD
+      OCR0A = 0;      // Left BCK
+      OCR2B = 0;      // Right BCK
+    } // Send it
+    if (leftyLoosey < BLK) {
+      OCR0B = (2 * FWD) / 3;    // Left FWD
+      OCR2A = 0;      // Right FWD
+      OCR0A = 0;      // Left BCK
+      OCR2B = (2 * RVS) / 3;      // Right BCK
+    } // This^ should turn right
+    if (rightyTighty < BLK) {
+      OCR0B = 0;      // Left FWD
+      OCR2A = (2 * FWD) / 3;    // Right FWD
+      OCR0A = (2 * RVS) / 3;      // Left BCK
+      OCR2B = 0;      // Right BCK
+    } // This^ should turn left
+  } else {
     OCR0B = 0;      // Left FWD
     OCR2A = 0;      // Right FWD
     OCR0A = 0;      // Left BCK
